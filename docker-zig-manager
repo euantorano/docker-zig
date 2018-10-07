@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+TARGET_DIR=/usr/local/bin/zig
+
+usage() {
+	echo "usage $0 COMMAND"
+	echo
+	echo "Manage zig binary packages"
+	echo
+	echo "Commands:"
+	echo "	extract	Extract Zig binary package into directory $TARGET_DIRECTORY if not already extracted"
+}
+
+
+case "$1" in
+	extract)
+		mkdir -p "$TARGET_DIR"
+		if [ ! -f "$TARGET_DIR/.extracted" ]; then
+			tar -Jxf /usr/src/zig.tar.xz -C "$TARGET_DIR" --strip-components=1
+			touch "$TARGET_DIR/.extracted"
+		fi
+		;;
+
+	*)
+		usage
+		exit 1
+		;;
+esac
