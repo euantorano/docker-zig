@@ -13,7 +13,6 @@ usage() {
 	echo "	extract	Extract Zig binary package into directory $TARGET_DIRECTORY if not already extracted"
 }
 
-
 case "$1" in
 	extract)
 		mkdir -p "$TARGET_DIR"
@@ -21,6 +20,7 @@ case "$1" in
 			tar -Jxf /usr/src/zig.tar.xz -C "$TARGET_DIR" --strip-components=1
 			touch "$TARGET_DIR/.extracted"
 		fi
+		rm /usr/src/zig.tar.xz
 		;;
 
 	*)
