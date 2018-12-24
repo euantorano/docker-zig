@@ -1,3 +1,5 @@
+.gitignore
+build.py
+Pipfile
+Pipfile.lock
 README.md
-build.sh
-versions.txt
