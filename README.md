@@ -2,16 +2,6 @@
 
 A docker image for [Zig](https://ziglang.org) based upon Alpine Linux 3.8.
 
-## Building
-
-This repository includes a script (`build.sh`) to build a set of known versions. Versions are listed in the `versions.txt` file in the form:
-
-```
-VERSION_NUMBER SHA256_CHECKSUM
-```
-
-The most recent version should be at the top of the file.
-
 ## Using this image
 
 ### Building an executable
@@ -19,3 +9,17 @@ The most recent version should be at the top of the file.
 ```
 docker run -v $PWD:/app euantorano/zig:0.3.0 build-exe hello.zig
 ```
+
+## Available tags
+
+There are two variants of tags provided by this repository - release tags such as `0.3.0`, and `master` branch builds such as `master-28018703`.
+
+The most recent `master-X` build is always tagged as simply `master` as well as having a tag including the Git hash for the release.
+
+The most recent stable release is always tagged as `latest`.
+
+## Building the Docker image(s)
+
+A simple Python script (`build.py`) is included that scrapes the [Zig Releases web page](https://ziglang.org/download/) in order to get available releases. It then builds an image for every release, including the current master release and pushes them to Docker Hub.
+
+This script uses [`pipenv`](https://pipenv.readthedocs.io/en/latest/) and can be ran as follows: `pipenv run python build.py`.
