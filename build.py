@@ -140,8 +140,7 @@ def build_image_for_release(client: docker.DockerClient, release: ReleaseHash) -
             tag=tag,
             rm=True,
             pull=True,
-            buildargs=args,
-            squash=True
+            buildargs=args
         )
 
         if release.is_master:
