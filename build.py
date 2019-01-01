@@ -17,6 +17,9 @@ class ReleaseHash(object):
         self.url = url
         self.is_master = is_master
 
+    def __repr__(self):
+        return "{} (hash: {}; url: {}; master: {})".format(self.release, self.hash, self.url, self.is_master)
+
     def tag_without_repository(self) -> str:
         if self.is_master:
             return "master-{}".format(self.release)
@@ -131,7 +134,7 @@ def build_image_for_release(client: docker.DockerClient, release: ReleaseHash) -
             "ZIG_SHA256": release.hash
         }
 
-        logging.info("Building image for release %s", tag)
+        logging.info("Building image for release %s", release)
 
         start = time.time()
 
