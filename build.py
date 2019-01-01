@@ -206,25 +206,28 @@ def main() -> None:
                             max_version = version
                             max_version_image = built_image.image
 
-    logging.info("Built %d images, pushing to the repository", len(built_images))
+    if len(built_images) > 0:
+        logging.info("Built %d images, pushing to the repository", len(built_images))
 
-    num_pushed = 0
+        num_pushed = 0
 
-    for built_image in built_images:
-        for tag in built_image.tags:
-            try:
-                logging.info("Pushing tag %s to repository %s", tag, REPOSITORY_NAME)
-                client.images.push(REPOSITORY_NAME, tag=tag)
-                num_pushed += 1
-            except Exception as e:
-                logging.error("Error pushing tag %s to the repository: %s", tag, e)
+        for built_image in built_images:
+            for tag in built_image.tags:
+                try:
+                    logging.info("Pushing tag %s to repository %s", tag, REPOSITORY_NAME)
+                    client.images.push(REPOSITORY_NAME, tag=tag)
+                    num_pushed += 1
+                except Exception as e:
+                    logging.error("Error pushing tag %s to the repository: %s", tag, e)
 
-    logging.info("Pushed %d images to the repository", num_pushed)
+        logging.info("Pushed %d images to the repository", num_pushed)
 
-    if max_version is not None and max_version_image is not None:
-        logging.info("Tagging release %s as latest", max_version)
-        max_version_image.tag(REPOSITORY_NAME, "latest")
-        client.images.push(REPOSITORY_NAME, tag="latest")
+        if max_version is not None and max_version_image is not None:
+            logging.info("Tagging release %s as latest", max_version)
+            max_version_image.tag(REPOSITORY_NAME, "latest")
+            client.images.push(REPOSITORY_NAME, tag="latest")
+    else:
+        logging.info("Build 0 images, nothing to push")
 
 
 if __name__ == "__main__":
