@@ -120,6 +120,19 @@ def get_release_hashes() -> Generator[ReleaseHash, None, None]:
             yield release_hash
 
 
+def print_build_log(build_log: iter):
+    for log in build_log:
+        if isinstance(log, dict):
+            if 'stream' in log:
+                entry = log['stream'].strip()
+                if entry:
+                    logging.info(entry)
+            if 'status' in log:
+                entry = log['status'].strip()
+                if entry:
+                    logging.info(entry)
+
+
 def build_image_for_release(client: docker.DockerClient, release: ReleaseHash) -> Optional[BuiltImage]:
     try:
         script_file_path = os.path.dirname(os.path.realpath(__file__))
@@ -138,24 +151,13 @@ def build_image_for_release(client: docker.DockerClient, release: ReleaseHash) -
 
         start = time.time()
 
-        built_image, logs = client.images.build(
+        built_image, _ = client.images.build(
             path=script_file_path,
             tag=tag,
             rm=True,
             pull=True,
             buildargs=args
         )
-
-        for log in logs:
-            if isinstance(log, dict):
-                if 'stream' in log:
-                    entry = log['stream'].strip()
-                    if entry:
-                        logging.info(entry)
-                if 'status' in log:
-                    entry = log['status'].strip()
-                    if entry:
-                        logging.info(entry)
 
         if release.is_master:
             # tag as main master release
@@ -171,8 +173,13 @@ def build_image_for_release(client: docker.DockerClient, release: ReleaseHash) -
         logging.info("Built image for release %s with ID %s in %ss", tag, built_image.id, elapsed)
 
         return BuiltImage(built_image.id, tags, built_image)
-    except Exception as e:
+    except docker.errors.BuildError as e:
         logging.error("Error building image for release %s: %s", release.tag_without_repository(), e)
+        print_build_log(e.build_log)
+
+        return None
+    except docker.errors.APIError as e:
+        logging.error("API error building image for release %s: %s", release.tag_without_repository(), e)
 
         return None
 
