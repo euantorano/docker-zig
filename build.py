@@ -138,13 +138,24 @@ def build_image_for_release(client: docker.DockerClient, release: ReleaseHash) -
 
         start = time.time()
 
-        built_image, _ = client.images.build(
+        built_image, logs = client.images.build(
             path=script_file_path,
             tag=tag,
             rm=True,
             pull=True,
             buildargs=args
         )
+
+        for log in logs:
+            if isinstance(log, dict):
+                if 'stream' in log:
+                    entry = log['stream'].strip()
+                    if entry:
+                        logging.info(entry)
+                if 'status' in log:
+                    entry = log['status'].strip()
+                    if entry:
+                        logging.info(entry)
 
         if release.is_master:
             # tag as main master release

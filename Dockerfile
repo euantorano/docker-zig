@@ -10,11 +10,11 @@ WORKDIR /usr/src
 
 COPY docker-zig-manager /usr/local/bin/
 
-RUN set -xe \
+RUN set -ex \
 	&& apk add --no-cache --virtual .fetch-deps curl \
 	&& curl -o zig.tar.xz "$ZIG_URL" ; \
-	if [ -n "$ZIG_SHA256" ]; then \
-	echo "$ZIG_SHA256 *zig.tar.xz" | sha256sum -c - ; \
+	if [[ -n "$ZIG_SHA256" ]]; then \
+	    echo "$ZIG_SHA256 *zig.tar.xz" | sha256sum -c - ; \
 	fi ; \
 	apk del .fetch-deps \
 	&& apk add --no-cache --virtual .extract-deps tar xz \

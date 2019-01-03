@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -euxo
 
 TARGET_DIR=/usr/local/bin/zig
 
@@ -16,7 +16,7 @@ usage() {
 case "$1" in
 	extract)
 		mkdir -p "$TARGET_DIR"
-		if [ ! -f "$TARGET_DIR/.extracted" ]; then
+		if [[ ! -f "$TARGET_DIR/.extracted" ]]; then
 			tar -Jxf /usr/src/zig.tar.xz -C "$TARGET_DIR" --strip-components=1
 			touch "$TARGET_DIR/.extracted"
 		fi
