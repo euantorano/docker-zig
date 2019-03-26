@@ -200,8 +200,6 @@ def main() -> None:
 
     existing_images = get_existing_images(client)
 
-    logging.info("Got %d existing images: %s", len(existing_images), existing_images)
-
     built_images = []
 
     max_version: Optional[semver.VersionInfo] = None
@@ -245,7 +243,7 @@ def main() -> None:
             max_version_image.tag(REPOSITORY_NAME, "latest")
             client.images.push(REPOSITORY_NAME, tag="latest")
     else:
-        logging.info("Build 0 images, nothing to push")
+        logging.info("Built 0 images, nothing to push")
 
 
 if __name__ == "__main__":

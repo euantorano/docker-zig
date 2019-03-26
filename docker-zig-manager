@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euxo
+set -eux
 
 TARGET_DIR=/usr/local/bin/zig
 

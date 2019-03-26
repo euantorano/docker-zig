@@ -1,6 +1,6 @@
 # Zig
 
-A docker image for [Zig](https://ziglang.org) based upon Alpine Linux 3.8.
+A docker image for [Zig](https://ziglang.org) based upon Alpine Linux 3.9.
 
 ## Using this image
 
