@@ -5,6 +5,7 @@ import semver
 import docker
 import os
 import time
+import argparse
 
 REPOSITORY_NAME = "euantorano/zig"
 
@@ -28,6 +29,12 @@ class ReleaseHash(object):
 
     def tag(self) -> str:
         return "{}:{}".format(REPOSITORY_NAME, self.tag_without_repository())
+
+    def version(self) -> Optional[semver.VersionInfo]:
+        if self.is_master:
+            return None
+
+        return semver.parse_version_info(self.release)
 
 
 class BuiltImage(object):
@@ -183,46 +190,73 @@ def build_image_for_release(client: docker.DockerClient, release: ReleaseHash) -
 
         return None
 
+def get_last_built_master_image(path: str) -> Optional[str]:
+    if not os.path.isfile(path):
+        return None
 
-def get_existing_images(client: docker.DockerClient) -> List[str]:
-    images = []
+    with open(path, 'r') as f:
+        return f.read()
 
-    for image in client.images.list(name=REPOSITORY_NAME):
-        images.extend(image.tags)
+def get_last_built_version(path: str) -> Optional[semver.VersionInfo]:
+    if not os.path.isfile(path):
+        return None
 
-    return images
+    with open(path, 'r') as f:
+        release = f.read()
 
+    try:
+        return semver.parse_version_info(release)
+    except ValueError:
+        return None
+
+def write_file_content(path: str, release: str):
+    with open(path, 'w') as f:
+        f.write(release)
 
 def main() -> None:
     logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s', level=logging.INFO)
 
+    parser = argparse.ArgumentParser(description='Build and tag the Docker containers for the most recent Zig releases')
+    parser.add_argument('--master-path', dest='master_path', required=True, type=str)
+    parser.add_argument('--version-path', dest='version_path', required=True, type=str)
+
+    args = parser.parse_args()
+
     client = docker.from_env()
 
-    existing_images = get_existing_images(client)
+    last_built_master_image = get_last_built_master_image(args.master_path)
+    last_built_version = get_last_built_version(args.version_path)
 
-    logging.info("Got %d existing images: %s", len(existing_images), existing_images)
+    logging.info("Got latest master hash: %s; latest version: %s", last_built_master_image, last_built_version)
 
     built_images = []
 
     max_version: Optional[semver.VersionInfo] = None
-    max_version_image: Optional[docker.models.images.Image] = None
+
+    latest_updated = False
 
     for release_hash in get_release_hashes():
-        if release_hash.tag() not in existing_images:
-            built_image = build_image_for_release(client, release_hash)
-            if built_image is not None:
-                built_images.append(built_image)
+        if release_hash.is_master:
+            if release_hash.release != last_built_master_image:
+                # new master release
+                built_image = build_image_for_release(client, release_hash)
+                if built_image is not None:
+                    built_images.append(built_image)
+                    write_file_content(args.master_path, release_hash.release)
+        else:
+            if last_built_version is None or release_hash.version() > last_built_version:
+                built_image = build_image_for_release(client, release_hash)
+                if built_image is not None:
+                    built_images.append(built_image)
+                    
+                    if max_version is None or max_version < release_hash.version():
+                        max_version = release_hash.version()
 
-                if not release_hash.is_master:
-                    version = semver.parse_version_info(release_hash.release)
+                        write_file_content(args.version_path, release_hash.release)
 
-                    if max_version is None:
-                        max_version = version
-                        max_version_image = built_image.image
-                    else:
-                        if version > max_version:
-                            max_version = version
-                            max_version_image = built_image.image
+                        logging.info("Tagging release %s as latest", max_version)
+                        built_image.image.tag(REPOSITORY_NAME, "latest")
+                        latest_updated = True
 
     if len(built_images) > 0:
         logging.info("Built %d images, pushing to the repository", len(built_images))
@@ -240,12 +274,11 @@ def main() -> None:
 
         logging.info("Pushed %d images to the repository", num_pushed)
 
-        if max_version is not None and max_version_image is not None:
-            logging.info("Tagging release %s as latest", max_version)
-            max_version_image.tag(REPOSITORY_NAME, "latest")
+        if latest_updated:
+            logging.info("Pushing latest tag for version: %s", max_version)
             client.images.push(REPOSITORY_NAME, tag="latest")
     else:
-        logging.info("Build 0 images, nothing to push")
+        logging.info("Built 0 images, nothing to push")
 
 
 if __name__ == "__main__":
