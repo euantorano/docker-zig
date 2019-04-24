@@ -1,4 +1,4 @@
-# Zig
+# Zig [![CircleCI](https://circleci.com/gh/euantorano/docker-zig.svg?style=svg)](https://circleci.com/gh/euantorano/docker-zig)
 
 A docker image for [Zig](https://ziglang.org) based upon Alpine Linux 3.9.
 
