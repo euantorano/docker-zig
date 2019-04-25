@@ -16,7 +16,7 @@ jobs:
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
       - restore_cache:
           name: restore image tag cache
-          key: last_image_versions
+          key: last_image_versions-{{ checksum "last_master" }}
       - restore_cache:  # ensure this step occurs *before* installing dependencies
           name: restore dependency cache
           key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
@@ -42,7 +42,7 @@ jobs:
             pipenv run python build.py --version-path ./last_version --master-path ./last_master
       - save_cache:
           name: save image tag cache
-          key: last_image_versions
+          key: last_image_versions-{{ checksum "last_master" }}
           paths:
             - "./last_version"
             - "./last_master"
