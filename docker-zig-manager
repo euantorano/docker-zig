@@ -11,22 +11,22 @@ usage() {
 	echo
 	echo "Commands:"
 	echo "  fetch url sha256 Fetch a Zig binary package from the given URL with the given sha hash"
-	echo "	extract	Extract Zig binary package into directory $TARGET_DIRECTORY if not already extracted"
+	echo "  extract Extract Zig binary package into directory $TARGET_DIRECTORY if not already extracted"
 }
 
 fetch() {
-    apk add --no-cache --virtual .fetch-deps curl \
-        && curl -s -o zig.tar.xz "$1" ; \
-        if [[ -n "$2" ]]; then
-            echo "$2 *zig.tar.xz" | sha256sum -c - ;
-        fi \
-        && apk del .fetch-deps
+	apk add --no-cache --virtual .fetch-deps curl \
+		&& curl -s -o zig.tar.xz "$1" ; \
+		if [[ -n "$2" ]]; then
+			echo "$2 *zig.tar.xz" | sha256sum -c - ;
+		fi \
+		&& apk del .fetch-deps
 }
 
 extract() {
-    apk add --no-cache --virtual .extract-deps tar xz \
-        && mkdir -p "$TARGET_DIR" ; \
-        if [[ ! -f "$TARGET_DIR/.extracted" ]]; then
+	apk add --no-cache --virtual .extract-deps tar xz \
+		&& mkdir -p "$TARGET_DIR" ; \
+		if [[ ! -f "$TARGET_DIR/.extracted" ]]; then
 			tar -Jxf /usr/src/zig.tar.xz -C "$TARGET_DIR" --strip-components=1 ; \
 			touch "$TARGET_DIR/.extracted" ;
 		fi \
@@ -35,9 +35,9 @@ extract() {
 }
 
 case "$1" in
-    fetch)
-        fetch $2 $3
-        ;;
+	fetch)
+		fetch $2 $3
+		;;
 
 	extract)
 		extract
