@@ -17,7 +17,6 @@ jobs:
       - restore_cache:
           name: restore image tag cache
           keys: 
-            - last_image_versions-{{ checksum "last_master" }}
             - last_image_versions-
             - last_image_versions
       - restore_cache:  # ensure this step occurs *before* installing dependencies
