@@ -6,9 +6,9 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-pyquery = "*"
 semver = "*"
 docker = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"

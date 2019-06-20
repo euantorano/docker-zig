@@ -1,13 +1,16 @@
 import logging
 from typing import Generator, List, Optional
-from pyquery import PyQuery as pq
+import requests
 import semver
 import docker
 import os
 import time
 import argparse
+from urllib.parse import urlparse
+
 
 REPOSITORY_NAME = "euantorano/zig"
+RELEASES_URL = "https://ziglang.org/download/index.json"
 
 
 class ReleaseHash(object):
@@ -45,17 +48,6 @@ class BuiltImage(object):
         self.image = image
 
 
-def get_releases(doc: pq) -> Generator[str, None, None]:
-    headings = doc("h2")
-
-    for heading in headings.items():
-        heading_id = heading.attr.id
-        if heading_id.startswith("release-"):
-            release = heading_id[8:]
-            if len(release) > 0:
-                yield release
-
-
 def is_valid_version(release: str) -> bool:
     try:
         _ = semver.parse_version_info(release)
@@ -64,67 +56,41 @@ def is_valid_version(release: str) -> bool:
         return False
 
 
-def escape_release_id(release: str) -> str:
-    return release.replace(".", "\\.")
+def extract_release_from_url(url: str) -> str:
+    parsed_url = urlparse(url)
+    path = parsed_url.path
+    base_name = os.path.basename(path)
 
+    index_of_plus = base_name.index('+')
 
-def get_release_table_for_heading(doc: pq, release: str) -> pq:
-    escaped_heading = escape_release_id(release)
-    table = doc("h2#release-{} ~ table".format(escaped_heading))
+    base_name = base_name[index_of_plus + 1:]
 
-    return table
+    index_of_period = base_name.index('.')
 
+    base_name = base_name[:index_of_period]
 
-def is_binary_release(row: pq) -> bool:
-    if len(row) != 4:
-        return False
-
-    kind = row.eq(1)
-
-    return kind.text() == "Binary"
-
-
-def get_release_hash(table: pq, release: str) -> Optional[ReleaseHash]:
-    for tr in table("tbody tr").items():
-        tds = tr("td")
-
-        if is_binary_release(tds):
-            download_cell = tds.eq(0)
-            download_link = download_cell("a:first")
-            href = download_link.attr("href")
-            if "zig-linux" in href:
-                sha = tds.eq(3).text()
-                url = href
-
-                is_master = release == "master"
-
-                if is_master:
-                    file_name = download_link.text()
-                    file_name_components = file_name.split("+")
-
-                    if len(file_name_components) >= 2:
-                        # last entry is the git tag followed by extension like ".tar.xz"
-                        tag_components = file_name_components[-1].split(".")
-                        release = tag_components[0]
-
-                return ReleaseHash(release, sha, url, is_master)
-
-    return None
+    return base_name
 
 
 def get_release_hashes() -> Generator[ReleaseHash, None, None]:
-    doc = pq(url="https://ziglang.org/download/")
+    r = requests.get(RELEASES_URL)
 
-    for release in get_releases(doc):
-        if release != "master" and not is_valid_version(release):
+    r.raise_for_status()
+
+    json = r.json()
+
+    for release, info in json.items():
+        if "x86_64-linux" not in info:
             continue
 
-        table = get_release_table_for_heading(doc, release)
+        linux_info = info["x86_64-linux"]
 
-        release_hash = get_release_hash(table, release)
+        if release == "master":
+            release_name = extract_release_from_url(linux_info["tarball"])
 
-        if release_hash is not None:
-            yield release_hash
+            yield ReleaseHash(release_name, linux_info["shasum"], linux_info["tarball"], True)
+        elif is_valid_version(release):
+            yield ReleaseHash(release, linux_info["shasum"], linux_info["tarball"], False)
 
 
 def print_build_log(build_log: iter):
@@ -190,12 +156,14 @@ def build_image_for_release(client: docker.DockerClient, release: ReleaseHash) -
 
         return None
 
+
 def get_last_built_master_image(path: str) -> Optional[str]:
     if not os.path.isfile(path):
         return None
 
     with open(path, 'r') as f:
         return f.read()
+
 
 def get_last_built_version(path: str) -> Optional[semver.VersionInfo]:
     if not os.path.isfile(path):
@@ -209,9 +177,11 @@ def get_last_built_version(path: str) -> Optional[semver.VersionInfo]:
     except ValueError:
         return None
 
+
 def write_file_content(path: str, release: str):
     with open(path, 'w') as f:
         f.write(release)
+
 
 def main() -> None:
     logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s', level=logging.INFO)
