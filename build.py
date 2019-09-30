@@ -61,13 +61,14 @@ def extract_release_from_url(url: str) -> str:
     path = parsed_url.path
     base_name = os.path.basename(path)
 
-    index_of_plus = base_name.index('+')
+    index_of_plus = base_name.find('+')
 
-    base_name = base_name[index_of_plus + 1:]
+    if index_of_plus != -1:
+        base_name = base_name[index_of_plus + 1:]
 
-    index_of_period = base_name.index('.')
-
-    base_name = base_name[:index_of_period]
+    index_of_period = base_name.find('.')
+    if index_of_period != -1:
+        base_name = base_name[:index_of_period]
 
     return base_name
 
@@ -218,7 +219,7 @@ def main() -> None:
                 built_image = build_image_for_release(client, release_hash)
                 if built_image is not None:
                     built_images.append(built_image)
-                    
+
                     if max_version is None or max_version < release_hash.version():
                         max_version = release_hash.version()
 
