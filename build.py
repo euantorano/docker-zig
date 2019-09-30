@@ -61,16 +61,15 @@ def extract_release_from_url(url: str) -> str:
     path = parsed_url.path
     base_name = os.path.basename(path)
 
+    base_name = base_name.replace("zig-linux-x86_64-", "")
+    base_name = base_name.replace(".tar.xz", "")
+
     index_of_plus = base_name.find('+')
 
     if index_of_plus != -1:
-        base_name = base_name[index_of_plus + 1:]
-
-    index_of_period = base_name.find('.')
-    if index_of_period != -1:
-        base_name = base_name[:index_of_period]
-
-    return base_name
+        return base_name[index_of_plus + 1:]
+    else:
+        return base_name
 
 
 def get_release_hashes() -> Generator[ReleaseHash, None, None]:
