@@ -21,7 +21,7 @@ jobs:
             - last_image_versions
       - restore_cache:  # ensure this step occurs *before* installing dependencies
           name: restore dependency cache
-          key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: deps-{{ .Environment.DEPS_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           name: install dependencies
           command: |
@@ -29,7 +29,7 @@ jobs:
             pipenv install
       - save_cache:
           name: save dependency cache
-          key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: deps-{{ .Environment.DEPS_CACHE_VERSION }}-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
             - ".venv"
             - "/usr/local/bin"
