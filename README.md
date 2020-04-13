@@ -1,18 +1,18 @@
 # Zig [![CircleCI](https://circleci.com/gh/euantorano/docker-zig.svg?style=svg)](https://circleci.com/gh/euantorano/docker-zig)
 
-A docker image for [Zig](https://ziglang.org) based upon Alpine Linux 3.9.
+A docker image for [Zig](https://ziglang.org) based upon Alpine Linux 3.11.
 
 ## Using this image
 
 ### Building an executable
 
 ```
-docker run -v $PWD:/app euantorano/zig:0.5.0 build-exe hello.zig
+docker run -v $PWD:/app euantorano/zig:0.6.0 build-exe hello.zig
 ```
 
 ## Available tags
 
-There are two variants of tags provided by this repository - release tags such as `0.5.0`, and `master` branch builds such as `master-28018703`.
+There are two variants of tags provided by this repository - release tags such as `0.6.0`, and `master` branch builds such as `master-28018703`.
 
 The most recent `master-X` build is always tagged as simply `master` as well as having a tag including the Git hash for the release.
 
