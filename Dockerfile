@@ -20,4 +20,4 @@ ENV PATH "/usr/local/bin/zig:${PATH}"
 WORKDIR /app
 
 ENTRYPOINT ["/usr/local/bin/zig/zig"]
-CMD ["help"]
+CMD ["--help"]
