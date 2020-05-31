@@ -6,9 +6,9 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-semver = "*"
-docker = "*"
-requests = "*"
+semver = "~=2.10"
+docker = "~=4.2"
+requests = "~=2.23"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
