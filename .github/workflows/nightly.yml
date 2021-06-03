@@ -21,13 +21,13 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Cache last built versions
-        id: cache-build-versions
-        uses: actions/cache@v2
-        with:
-          path: |
-            last_master
-            last_version
-          key: ${{ runner.os }}-primes
+      id: cache-build-versions
+      uses: actions/cache@v2
+      with:
+        path: |
+          last_master
+          last_version
+        key: ${{ runner.os }}-primes
 
     - name: Install curl and jq
       run: |
