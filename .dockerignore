@@ -1,8 +1,5 @@
 .gitignore
-build.py
-Pipfile
-Pipfile.lock
 README.md
 last_version
 last_master
-cloud-init.yaml
+buid.sh
