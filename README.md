@@ -7,12 +7,12 @@ A docker image for [Zig](https://ziglang.org) based upon Alpine Linux 3.13.
 ### Building an executable
 
 ```
-docker run -v $PWD:/app euantorano/zig:0.7.1 build-exe hello.zig
+docker run -v $PWD:/app euantorano/zig:0.8.0 build-exe hello.zig
 ```
 
 ## Available tags
 
-There are two variants of tags provided by this repository - release tags such as `0.7.0`, and `master` branch builds such as `master-28018703`.
+There are two variants of tags provided by this repository - release tags such as `0.8.0`, and `master` branch builds such as `master-28018703`.
 
 The most recent `master-X` build is always tagged as simply `master` as well as having a tag including the Git hash for the release.
 
