@@ -1,10 +1,10 @@
-FROM alpine:3.13
+FROM alpine:3.16
 
-ARG ZIG_VERSION=0.8.0
+ARG ZIG_VERSION=0.9.1
 ARG ZIG_URL=https://ziglang.org/download/${ZIG_VERSION}/zig-linux-x86_64-${ZIG_VERSION}.tar.xz
-ARG ZIG_SHA256=502625d3da3ae595c5f44a809a87714320b7a40e6dff4a895b5fa7df3391d01e
+ARG ZIG_SHA256=be8da632c1d3273f766b69244d80669fe4f5e27798654681d77c992f17c237d7
 
-LABEL version=0.8.0
+LABEL version=0.9.1
 LABEL maintainer="Euan Torano <euan@torano.co.uk>"
 
 WORKDIR /usr/src
