@@ -35,6 +35,9 @@ if [ "${MASTER_HASH}" != "${LAST_BUILD_MASTER_HASH}" ]; then
 
     docker push "euantorano/zig:master-${MASTER_HASH}"
     docker push 'euantorano/zig:master'
+    
+    docker push "ghcr.io/euantorano/zig:master-${MASTER_HASH}"
+    docker push 'ghcr.io/euantorano/zig:master'
 
     echo "${MASTER_HASH}" > ./last_master
 fi
@@ -66,6 +69,8 @@ while read release; do
             .
 
         docker push "euantorano/zig:${release}"
+
+        docker push "ghcr.io/euantorano/zig:${release}"
 
         echo "${release}" > ./last_version
     fi
