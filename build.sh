@@ -31,6 +31,8 @@ if [ "${MASTER_HASH}" != "${LAST_BUILD_MASTER_HASH}" ]; then
         --build-arg "ZIG_SHA256=${MASTER_LINUX_SHA}" \
         -t "euantorano/zig:master-${MASTER_HASH}" \
         -t 'euantorano/zig:master' \
+        -t "ghcr.io/euantorano/zig:master-${MASTER_HASH}" \
+        -t 'ghcr.io/euantorano/zig:master' \
         .
 
     docker push "euantorano/zig:master-${MASTER_HASH}"
@@ -66,6 +68,7 @@ while read release; do
             --build-arg "ZIG_URL=${VERSION_RELEASE_LINUX_URL}" \
             --build-arg "ZIG_SHA256=${VERSION_RELEASE_LINUX_SHA}" \
             -t "euantorano/zig:${release}" \
+            -t "ghcr.io/euantorano/zig:${release}" \
             .
 
         docker push "euantorano/zig:${release}"
